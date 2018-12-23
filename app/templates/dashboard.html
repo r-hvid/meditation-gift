@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        .overview {
+            margin: 0 auto;
+        }
+
+        .stats {
+            display: flex;
+            justify-items: center;
+            text-align: center;
+        }
+
+        .stats span {
+            font-size: 20px;
+        }
+
+        .streak span {
+            font-size: 25px;
+        }
+    </style>
+
+    <div class="overview">
+        <div class="stats">
+            <div class="total">
+                <span>5</span><br/>total
+            </div>
+            <div class="streak">
+                <span>2</span><br/>streak
+            </div>
+            <div class="minutes">
+                <span>103</span><br/>minutes
+            </div>
+        </div>
+        <div class="cta">
+            <a href="{{ url_for('main.meditate') }}" class="btn btn-primary btn-lg">Meditate</a>
+        </div>
+    </div>
+
+
+    {%  if form %}
+        <div class="card">
+          <div class="card-header">
+            Add meditation video
+          </div>
+          <div class="card-body">
+              <form class="form-group" action="" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="text-left">
+                    {{ form.youtube_id.label }}<br>
+                    {{ form.youtube_id(class="form-control") }}<br>
+                    {% for error in form.youtube_id.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div class="text-left">
+                    {{ form.title.label }}<br>
+                    {{ form.title(class="form-control") }}<br>
+                    {% for error in form.title.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </div>
+                <div>{{ form.submit(class="btn btn-outline-success") }}</div>
+            </form>
+          </div>
+        </div>
+    {% endif %}
+{% endblock %}
