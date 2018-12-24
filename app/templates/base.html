@@ -11,6 +11,18 @@
     <title>Hello, far!</title>
   </head>
   <body>
+    <style>
+      .logged-in-as {
+        display: flex;
+        align-items: center;
+        margin-right: 5px;
+      }
+
+      .container {
+        padding-top: 40px;
+      }
+    </style>
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="#">Meditation</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,6 +38,9 @@
                 <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
               </li>
                 {%  else %}
+              <li class="nav-item logged-in-as">
+                Logged in as: {{ current_user.username }}
+              </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
               </li>
@@ -37,8 +52,6 @@
           </div>
       </div>
     </nav>
-
-
 
     <div class="container">
         {% for message in get_flashed_messages() %}

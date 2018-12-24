@@ -4,33 +4,58 @@
     <style>
         .overview {
             margin: 0 auto;
+            margin-bottom: 40px;
+        }
+
+        .friends {
+            margin-bottom: 40px;
+        }
+
+        .add-meditation {
+            margin-bottom: 40px;
         }
 
         .stats {
             display: flex;
-            justify-items: center;
+            justify-content: center;
             text-align: center;
         }
 
         .stats span {
-            font-size: 20px;
+            font-size: 30px;
         }
 
-        .streak span {
-            font-size: 25px;
+        .box {
+            width: 40%;
+            max-width: 150px;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.05);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .total {
+            margin-right: 10px;
+        }
+
+        .cta {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #add-friend {
+            display: none;
         }
     </style>
 
     <div class="overview">
         <div class="stats">
-            <div class="total">
-                <span>5</span><br/>total
+            <div class="total box">
+                <span>{{ stats.total_meditations}}</span><br/>total <br/>meditations
             </div>
-            <div class="streak">
-                <span>2</span><br/>streak
-            </div>
-            <div class="minutes">
-                <span>103</span><br/>minutes
+            <div class="streak box">
+                <span>{{ stats.streak }}</span><br/>day <br/>streak
             </div>
         </div>
         <div class="cta">
@@ -38,30 +63,93 @@
         </div>
     </div>
 
+    <style>
+        .header-internal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
 
-    {%  if form %}
-        <div class="card">
+    <script>
+        function showAddFriend() {
+            add_friend_node = document.getElementById('add-friend');
+            add_friend_node.style.display = "block";
+        }
+    </script>
+
+    <div class="friends card">
+        <div class="card-header">
+            <div class="header-internal">
+                <div><b>Friend list</b></div>
+                <div><button class="btn btn-success" onclick="showAddFriend()">Add friend</button></div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="add-friend" id="add-friend">
+                {% if friend_form %}
+                <form class="form-group" action="" method="post" novalidate>
+                        {{ friend_form.hidden_tag() }}
+                        <div class="text-left">
+                            {{ friend_form.username.label }}<br>
+                            {{ friend_form.username(class="form-control") }}<br>
+                            {% for error in friend_form.username.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                            {% endfor %}
+                        </div>
+                        <div>{{ friend_form.submit_friend(class="btn btn-outline-success") }}</div>
+                </form>
+                {% endif %}
+            </div>
+            <div class="friend-list">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Streak</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for friend in current_user.get_highscore() %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ friend.username }}</td>
+                            <td>{{ friend.streak }}</td>
+                            <td>{{ friend.daily_meditations.count() }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    {%  if meditation_form %}
+        <div class="add-meditation card">
           <div class="card-header">
-            Add meditation video
+            <b>Add meditation video</b>
           </div>
           <div class="card-body">
               <form class="form-group" action="" method="post" novalidate>
-                {{ form.hidden_tag() }}
+                {{ meditation_form.hidden_tag() }}
                 <div class="text-left">
-                    {{ form.youtube_id.label }}<br>
-                    {{ form.youtube_id(class="form-control") }}<br>
-                    {% for error in form.youtube_id.errors %}
+                    {{ meditation_form.youtube_id.label }}<br>
+                    {{ meditation_form.youtube_id(class="form-control") }}<br>
+                    {% for error in meditation_form.youtube_id.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </div>
                 <div class="text-left">
-                    {{ form.title.label }}<br>
-                    {{ form.title(class="form-control") }}<br>
-                    {% for error in form.title.errors %}
+                    {{ meditation_form.title.label }}<br>
+                    {{ meditation_form.title(class="form-control") }}<br>
+                    {% for error in meditation_form.title.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </div>
-                <div>{{ form.submit(class="btn btn-outline-success") }}</div>
+                <div>{{ meditation_form.submit_meditation(class="btn btn-outline-success") }}</div>
             </form>
           </div>
         </div>

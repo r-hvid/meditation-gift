@@ -1,9 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{{ meditation.meditation.title }}</h1>
+    <style>
+        .meditation {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
 
-    <div id="player"></div>
+    <div class="meditation">
+        <div id="player"></div>
+    </div>
 
     <script>
       // 2. This code loads the IFrame Player API code asynchronously.

@@ -26,7 +26,7 @@ class DailyMeditation(db.Model):
     __tablename__ = "daily_meditations"
 
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, unique=True)
+    date = db.Column(db.Date, index=True, unique=True)
 
     meditation_id = db.Column(db.Integer, db.ForeignKey('meditations.id'))
     meditation = db.relationship('Meditation')
@@ -41,20 +41,36 @@ class DailyMeditation(db.Model):
         return "<Daily Meditation date: {} meditation: {}>".format(self.date, self.meditation.title)
 
 
+followers = db.Table(
+    'followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'))
+)
+
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True)
-    username = db.Column(db.String(120), unique=True)
+    username = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    streak = db.Column(db.Integer, default=0)
 
     daily_meditations = db.relationship("DailyMeditation", backref="user", lazy="dynamic")
 
     daily_meditations = db.relationship(
         "DailyMeditation",
         secondary=user_daily_meditation,
-        back_populates="users"
+        back_populates="users",
+        lazy="dynamic"
+    )
+
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic'
     )
 
     def __repr__(self):
@@ -65,6 +81,34 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def is_streak(self):
+        yesterday = datetime.date.today()-datetime.timedelta(days=1)
+        yesterdays_meditation = DailyMeditation.query.filter_by(date=yesterday)
+
+        if yesterdays_meditation in self.daily_meditations:
+            return True
+
+        return False
+
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0
+
+    def get_highscore(self):
+        friends = [friend for friend in self.followed]
+        friends.append(self)
+        friends.sort(key=lambda current_friend: current_friend.streak, reverse=True)
+
+        return friends
 
 
 @login.user_loader
